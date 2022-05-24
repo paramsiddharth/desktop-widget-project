@@ -20,7 +20,10 @@ def get_weather_data(lat, lon):
 	results = resp.json()
 
 	location = results.get('name')
-	description = results.get('weather')[0].get('description')
+	weather = results.get('weather')[0]
+	description = weather.get('description')
+	icon = weather.get('icon')
+	icon = f'http://openweathermap.org/img/wn/{icon}@2x.png'
 	temp = results.get('main').get('temp')
 	temp_felt = results.get('main').get('feels_like')
 	temp_min = results.get('main').get('temp_min')
@@ -55,6 +58,7 @@ def get_weather_data(lat, lon):
 	return to_dict(
 		location=location,
 		description=description,
+		icon=icon,
 
 		temp=temp,
 		temp_felt=temp_felt,

@@ -1,11 +1,11 @@
 from io import BytesIO
 from threading import Thread
-from tkinter import CENTER, PhotoImage, Tk, Label, Frame
-from PIL import ImageTk, Image
+from tkinter import CENTER, PhotoImage, Tk, Label, Frame, Toplevel
 from urllib.request import urlopen
 from base64 import b64encode
 
 from api import get_weather_data
+from config import get_config
 
 WIDTH = HEIGHT = 300
 
@@ -22,7 +22,9 @@ def main():
 	loading.place(relx=0.5, rely=0.5, anchor=CENTER)
 
 	def load_application():
-		data = get_weather_data(lat=24.434727, lon=77.162304)
+		config = get_config()
+
+		data = get_weather_data(lat=config['lat'], lon=config['lon'])
 		req = urlopen(data.get('icon'))
 		icon = req.read()
 		req.close()
@@ -31,15 +33,15 @@ def main():
 		loading_frame.destroy()
 
 		d = Frame(root, width=WIDTH, height=HEIGHT)
-		d.pack()
+		d.pack(pady=(20, 20))
 
-		Label(d, text=data['location'], font='Arial 17 bold').pack(pady=(20, 0))
+		Label(d, text=data['location'], font='Arial 17 bold').pack(pady=(0, 5))
 
 		photo = PhotoImage(data=icon)
 
 		img = Label(d, image=photo, bg='gray')
 		img.image = photo
-		img.pack()
+		img.pack(pady=(5, 5))
 
 		Label(d, text=data['description'].capitalize(), font='Arial 12').pack()
 
@@ -50,11 +52,12 @@ def main():
 		Label(d2, text=f"{data['temp_felt']}°", font='Arial 10', fg='blue').grid(row=0, column=1)
 		Label(d2, text=f"({data['temp_min']}°-{data['temp_max']}°)", font='Arial 10', fg='red').grid(row=0, column=2)
 
-		# '''
-		# for key, value in data.items():
-		# 	lab = Label(d, text=f'{key}: {value}')
-		# 	lab.pack()
-		# '''
+		Label(d, text=f"Pressure: {data['pressure']}", font='Arial 10').pack()
+		Label(d, text=f"Humidity: {data['humidity']}%", font='Arial 10').pack()
+		Label(d, text=f"Time zone: {data['timezone']}", font='Arial 10').pack()
+		Label(d, text=f"Sea level: {data['sea_level']}", font='Arial 10').pack()
+		Label(d, text=f"Wind speed: {data['wind_speed']} ({data['wind_direction'].capitalize()})", font='Arial 10').pack()
+		Label(d, text=f"Wind gust: {data['wind_gust']}", font='Arial 10').pack()
 
 	thread = Thread(target=load_application)
 	thread.start()
